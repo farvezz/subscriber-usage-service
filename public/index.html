@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Subscriber Usage</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; color: #222; }
+  h1 { font-size: 1.4rem; }
+  form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 24px; }
+  input { padding: 6px; }
+  button { grid-column: span 2; padding: 8px; cursor: pointer; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; font-size: 0.9rem; }
+  th { background: #f5f5f5; }
+</style>
+</head>
+<body>
+  <h1>Subscriber Usage</h1>
+
+  <form id="usage-form">
+    <input name="subscriberId" placeholder="Subscriber ID (e.g. SUB01)" required />
+    <input name="callMinutes" type="number" placeholder="Call minutes" required />
+    <input name="smsCount" type="number" placeholder="SMS count" required />
+    <input name="dataUsageMB" type="number" placeholder="Data usage (MB)" required />
+    <button type="submit">Record usage</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Subscriber</th><th>Call min</th><th>SMS</th><th>Data (MB)</th><th>Timestamp</th></tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+<script>
+async function loadUsage() {
+  const res = await fetch('/api/usage');
+  const data = await res.json();
+  const rows = document.getElementById('rows');
+  rows.innerHTML = data.records.map(r => `
+    <tr>
+      <td>${r.id}</td><td>${r.subscriberId}</td><td>${r.callMinutes}</td>
+      <td>${r.smsCount}</td><td>${r.dataUsageMB}</td><td>${r.timestamp}</td>
+    </tr>`).join('');
+}
+
+document.getElementById('usage-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const payload = {
+    subscriberId: form.subscriberId.value,
+    callMinutes: Number(form.callMinutes.value),
+    smsCount: Number(form.smsCount.value),
+    dataUsageMB: Number(form.dataUsageMB.value),
+  };
+  const res = await fetch('/api/usage', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (res.ok) {
+    form.reset();
+    loadUsage();
+  } else {
+    const err = await res.json();
+    alert('Error: ' + JSON.stringify(err.details || err.error));
+  }
+});
+
+loadUsage();
+</script>
+</body>
+</html>

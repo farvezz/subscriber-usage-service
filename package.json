@@ -1,0 +1,21 @@
+{
+  "name": "subscriber-usage-service",
+  "version": "1.0.0",
+  "description": "Subscriber Usage API + snapshot automation (Technical Test)",
+  "main": "src/app.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js",
+    "snapshot": "node scripts/snapshot.js",
+    "cleanup": "node scripts/cleanup.js",
+    "schedule": "node scripts/schedule.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "node-cron": "^3.0.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
